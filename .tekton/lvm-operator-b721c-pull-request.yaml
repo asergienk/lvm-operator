@@ -34,6 +34,10 @@ spec:
     value: catalog.konflux.Dockerfile
   - name: path-context
     value: release/catalog
+  - name: build-args
+    value:
+      - CATALOG_VERSION=v5.0
+      - BASE_IMAGE=registry.redhat.io/openshift4/ose-operator-registry-rhel9
   pipelineSpec:
     description: |
       This pipeline is ideal for building and verifying [file-based catalogs](https://konflux-ci.dev/docs/end-to-end/building-olm/#building-the-file-based-catalog).
@@ -197,13 +201,13 @@ spec:
       - clone-repository
       taskRef:
         params:
-        - name: name
-          value: fbc-inject-lifecycle-oci-ta
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-fbc-inject-lifecycle-oci-ta:0.1@sha256:a636970f2f7ff1c8156ad92e3c6bde96ce532a3195b24cc3ed4025d7d609e6eb
-        - name: kind
-          value: task
-        resolver: bundles
+        - name: url
+          value: https://github.com/asergienk/konflux-operator-tasks.git
+        - name: revision
+          value: add_validators_flag_to_plcc2fbc
+        - name: pathInRepo
+          value: task/fbc-inject-lifecycle-oci-ta/0.1/fbc-inject-lifecycle-oci-ta.yaml
+        resolver: git
     - name: run-opm-command
       params:
       - name: SOURCE_ARTIFACT
