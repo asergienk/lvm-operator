@@ -191,7 +191,7 @@ spec:
         value: $(params.dockerfile)
       - name: BUILD_ARGS
         value:
-        - $(params.build-args[*])
+        - CATALOG_VERSION=v5.0
       runAfter:
       - clone-repository
       taskRef:
