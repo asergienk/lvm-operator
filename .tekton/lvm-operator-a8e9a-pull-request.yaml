@@ -27,13 +27,39 @@ spec:
     value: quay.io/redhat-user-workloads-stage/asergien-tenant/lvm-operator-a8e9a:on-pr-{{revision}}
   - name: image-expires-after
     value: 5d
-  - name: build-platforms
-    value:
-    - linux/x86_64
   - name: dockerfile
     value: release/catalog/catalog.konflux.Dockerfile
   - name: path-context
     value: release/catalog
+  - name: build-args
+    value:
+    - CATALOG_VERSION=v5.1
+    - BASE_IMAGE=registry.redhat.io/openshift5/ose-operator-registry-rhel9
+  - name: hermetic
+    value: "true"
+  - name: skip-additional-tags
+    value: "true"
+  - name: build-platforms
+    value:
+    - linux/x86_64
+    - linux/arm64
+    - linux/ppc64le
+    - linux/s390x
+  - name: opm_args
+    value:
+    - alpha
+    - render-template
+    - semver
+    - "--migrate-level=bundle-object-to-csv-metadata"
+    - release/catalog/lvm-operator-catalog-template.yaml
+  - name: catalog-output-path
+    value: "release/catalog/lvm-operator-catalog.json"
+  - name: catalog-template-merge-script
+    value: "./release/hack/prepare-catalog.sh"
+  - name: catalog-patch-script
+    value: "./release/hack/render-catalog.sh"
+  - name: catalog-patch-image
+    value: quay.io/konflux-ci/yq@sha256:41aee71bcaa8a759073e00d6acea358fbc4013ad6e28554729451606c0c35591
   pipelineSpec:
     description: |
       This pipeline is ideal for building and verifying [file-based catalogs](https://konflux-ci.dev/docs/end-to-end/building-olm/#building-the-file-based-catalog).
@@ -197,13 +223,13 @@ spec:
       - clone-repository
       taskRef:
         params:
-        - name: name
-          value: fbc-inject-lifecycle-oci-ta
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-fbc-inject-lifecycle-oci-ta:0.1@sha256:da1217be1dcec3d5b5140ea351466607005481397b31f2b81108c4fd3012fbde
-        - name: kind
-          value: task
-        resolver: bundles
+        - name: url
+          value: https://github.com/redhat-chai-bot/konflux-ci_konflux-operator-tasks.git
+        - name: revision
+          value: task-security-context-hardening
+        - name: pathInRepo
+          value: task/fbc-inject-lifecycle-oci-ta/0.1/fbc-inject-lifecycle-oci-ta.yaml
+        resolver: git
     - name: run-opm-command
       params:
       - name: SOURCE_ARTIFACT
@@ -222,13 +248,13 @@ spec:
       - fbc-inject-lifecycle
       taskRef:
         params:
-        - name: name
-          value: run-opm-command-oci-ta
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-run-opm-command-oci-ta:0.1@sha256:a4865bdefb5c74eec6ee5a4919ed6ab9da723326455f34a33f03e590c8f5ae77
-        - name: kind
-          value: task
-        resolver: bundles
+        - name: url
+          value: https://github.com/redhat-chai-bot/konflux-ci_konflux-operator-tasks.git
+        - name: revision
+          value: task-security-context-hardening
+        - name: pathInRepo
+          value: task/run-opm-command-oci-ta/0.1/run-opm-command-oci-ta.yaml
+        resolver: git
     - name: prefetch-dependencies
       params:
       - name: input
@@ -381,13 +407,13 @@ spec:
       - build-image-index
       taskRef:
         params:
-        - name: name
-          value: validate-fbc
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-validate-fbc:0.3@sha256:5ac2ab06fa8b7b7dfaa7a57cf68d3dd8de3fa9c7d6ebaef17626509c45f234a3
-        - name: kind
-          value: task
-        resolver: bundles
+        - name: url
+          value: https://github.com/redhat-chai-bot/konflux-ci_konflux-operator-tasks.git
+        - name: revision
+          value: task-security-context-hardening
+        - name: pathInRepo
+          value: task/validate-fbc/0.3/validate-fbc.yaml
+        resolver: git
       when:
       - input: $(params.skip-checks)
         operator: in
@@ -407,13 +433,13 @@ spec:
       - validate-fbc
       taskRef:
         params:
-        - name: name
-          value: fbc-target-index-pruning-check
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-fbc-target-index-pruning-check:0.1@sha256:a7696d92734be62700723b6d2c40dfaee4809e6a1d42b28deefc7c7463176c32
-        - name: kind
-          value: task
-        resolver: bundles
+          - name: url
+            value: https://github.com/redhat-chai-bot/konflux-ci_konflux-operator-tasks.git
+          - name: revision
+            value: task-security-context-hardening
+          - name: pathInRepo
+            value: task/fbc-target-index-pruning-check/0.1/fbc-target-index-pruning-check.yaml
+        resolver: git
       when:
       - input: $(params.skip-checks)
         operator: in
@@ -431,13 +457,13 @@ spec:
       - build-image-index
       taskRef:
         params:
-        - name: name
-          value: fbc-fips-check-oci-ta
-        - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-fbc-fips-check-oci-ta:0.1@sha256:935adb61a5c9be0f619edc8838771ad3fe08cf17689094aeaaeac493af2a2115
-        - name: kind
-          value: task
-        resolver: bundles
+          - name: url
+            value: https://github.com/redhat-chai-bot/konflux-ci_konflux-operator-tasks.git
+          - name: revision
+            value: task-security-context-hardening
+          - name: pathInRepo
+            value: task/fbc-fips-check-oci-ta/0.1/fbc-fips-check-oci-ta.yaml
+        resolver: git
       when:
       - input: $(params.skip-checks)
         operator: in
