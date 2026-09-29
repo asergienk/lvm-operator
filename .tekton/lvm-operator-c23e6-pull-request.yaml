@@ -237,7 +237,8 @@ spec:
       - name: ociArtifactExpiresAfter
         value: $(params.image-expires-after)
       - name: OPM_ARGS
-        value: []
+        value:
+        - $(params.opm_args)
       - name: OPM_OUTPUT_PATH
         value: ""
       - name: IDMS_PATH
